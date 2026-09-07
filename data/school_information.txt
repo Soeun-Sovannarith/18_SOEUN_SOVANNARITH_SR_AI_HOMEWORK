@@ -1,0 +1,56 @@
+GREENFIELD INTERNATIONAL SCHOOL
+General School Information
+
+Document type: Fictional school information for RAG testing
+Last updated: 1 September 2026
+
+IMPORTANT
+This is sample content created for a school RAG application. It is not official information from a real school.
+
+ABOUT THE SCHOOL
+Greenfield International School is a fictional co-educational day school serving students from Grade 7 through Grade 12. The school combines an English-language academic program with community projects, creative arts, athletics, and student well-being support.
+
+School address: 24 Greenfield Avenue, Riverside District
+Main phone: +1 555 010 2040
+General email: office@greenfield.example.edu
+Website: https://greenfield.example.edu
+
+SCHOOL HOURS
+The campus is open from 7:30 a.m. to 4:30 p.m. on regular school days.
+Classes run from 8:00 a.m. to 3:15 p.m., Monday through Friday.
+The reception office is open from 7:45 a.m. to 4:00 p.m.
+The school is closed on weekends and public holidays unless a scheduled event is announced.
+
+ACADEMIC PROGRAM
+All students take English, mathematics, science, social studies, physical education, digital literacy, and a second language. Students in Grades 10-12 choose electives such as computer science, visual arts, economics, environmental studies, music, and design technology.
+
+The academic year has two semesters:
+- Semester 1: September through January
+- Semester 2: February through June
+
+Progress reports are shared with families at the end of each semester. Families can contact the relevant subject teacher to discuss academic progress.
+
+ADMISSIONS
+Families begin an application by submitting the online application form, previous school records, proof of identity, and emergency contact information. Applicants may be invited to a student interview and age-appropriate placement assessment. Admission decisions are sent by email.
+
+The admissions office can be reached at admissions@greenfield.example.edu. Applications are normally reviewed within ten school days after all required documents are received.
+
+STUDENT SUPPORT
+The school provides a counselor, a school nurse, learning support, language support, and a safeguarding officer. Students can request an appointment through a teacher, the reception office, or studentservices@greenfield.example.edu. Urgent safety concerns should be reported immediately to any trusted adult on campus.
+
+LIBRARY AND LEARNING CENTER
+The library is open Monday through Friday from 7:45 a.m. to 4:00 p.m. Students may borrow up to five books for three weeks. A renewal is allowed when another student has not reserved the item. Students must return or renew materials before the due date.
+
+TRANSPORTATION
+The school offers optional bus routes for registered families. Bus service begins at 7:00 a.m. and afternoon routes leave campus at 3:30 p.m. Students must remain seated, wear a seat belt, and follow the driver's instructions. Transportation questions should be sent to transport@greenfield.example.edu.
+
+MEALS
+The cafeteria serves breakfast from 7:30 a.m. to 7:55 a.m. and lunch from 11:45 a.m. to 1:15 p.m. Vegetarian and common allergy-aware options are available. Families should record food allergies and dietary restrictions in the student health profile.
+
+EMERGENCY CONTACTS
+Main reception: +1 555 010 2040
+School nurse: nurse@greenfield.example.edu
+Safeguarding officer: safeguarding@greenfield.example.edu
+IT help desk: helpdesk@greenfield.example.edu
+
+For an immediate emergency, contact local emergency services first, then notify the school reception office when it is safe to do so.
