@@ -1,0 +1,59 @@
+import ollama
+
+from retriever import RetrievedChunk
+
+GENERATION_MODEL = "llama3.2"
+
+
+def build_prompt(question: str, chunks: list[RetrievedChunk]) -> str:
+	"""Build the user prompt containing only retrieved context and the question."""
+	context = "\n\n".join(
+		f"Source: {chunk.source}\n{chunk.text}" for chunk in chunks
+	)
+	return f"""Retrieved school-document context:
+{context}
+
+Question: {question}
+Answer directly from the retrieved context:"""
+
+
+def generate_answer(
+	question: str,
+	chunks: list[RetrievedChunk],
+	model: str = GENERATION_MODEL,
+) -> str:
+	"""Generate a grounded answer with the local Ollama model."""
+	if not question.strip():
+		raise ValueError("question must not be blank")
+	if not chunks:
+		return "I could not find this in the provided documents."
+
+	try:
+		response = ollama.chat(
+			model=model,
+			messages=[
+				{
+					"role": "system",
+					"content": (
+						"Answer only from the provided school-document context. "
+						"For broad questions, summarize relevant context immediately; "
+						"never ask the user to provide a more specific question. "
+						"If the context has no relevant information, reply exactly: "
+						"I could not find this in the provided documents. "
+						"Do not repeat these instructions or append the fallback after answering."
+					),
+				},
+				{"role": "user", "content": build_prompt(question, chunks)},
+			],
+			options={"temperature": 0},
+		)
+	except Exception as error:
+		raise RuntimeError(
+			f"Unable to generate an answer. Is Ollama running with '{model}' pulled? "
+			f"Original error: {error}"
+		) from error
+
+	content = response.get("message", {}).get("content", "")
+	if not content.strip():
+		raise RuntimeError("The language model returned an empty answer")
+	return content.strip()

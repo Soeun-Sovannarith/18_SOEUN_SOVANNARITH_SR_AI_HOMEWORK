@@ -4,8 +4,6 @@ General School Information
 Document type: Fictional school information for RAG testing
 Last updated: 1 September 2026
 
-IMPORTANT
-This is sample content created for a school RAG application. It is not official information from a real school.
 
 ABOUT THE SCHOOL
 Greenfield International School is a fictional co-educational day school serving students from Grade 7 through Grade 12. The school combines an English-language academic program with community projects, creative arts, athletics, and student well-being support.

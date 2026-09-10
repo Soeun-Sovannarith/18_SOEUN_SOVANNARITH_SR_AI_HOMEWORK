@@ -1,0 +1,5 @@
+# Reflection
+
+This local RAG prototype worked well because each stage has one clear responsibility: ingestion normalizes the files, chunking creates searchable passages, embeddings represent their meaning, Chroma stores and retrieves them, and generation answers from the retrieved context. The source display was especially useful because it makes retrieval visible instead of treating the language model as a black box. The hardest part was handling the boundary between relevant and irrelevant questions. Vector search always returns the closest chunks, even when the question is outside the documents, so the prompt must explicitly prevent the model from guessing. A production version should add a distance threshold and possibly a relevance classifier before generation.
+
+For a later Advanced RAG improvement, I would try query rewriting for vague questions and reranking for questions that retrieve several similar passages. I would also compare the current paragraph-aware character chunking strategy with a heading-aware Markdown splitter. That could preserve more context from policy sections while reducing unrelated text in each retrieved passage.
