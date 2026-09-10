@@ -1,8 +1,10 @@
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
 from ingestion import IngestedDocument
+
+ChunkingStrategy = Literal["paragraph", "fixed"]
 
 
 class DocumentChunk(BaseModel):
@@ -15,12 +17,12 @@ class DocumentChunk(BaseModel):
 	metadata: dict[str, Any] = Field(default_factory=dict)
 
 
-def split_document(
+def split_document_paragraph(
 	document: IngestedDocument,
 	chunk_size: int = 800,
 	overlap: int = 120,
 ) -> list[DocumentChunk]:
-	"""Split a document on paragraph boundaries, then wrap long paragraphs."""
+	"""Strategy 1: Split document on paragraph boundaries, then wrap long paragraphs."""
 	if chunk_size <= 0:
 		raise ValueError("chunk_size must be greater than zero")
 	if overlap < 0 or overlap >= chunk_size:
@@ -36,12 +38,13 @@ def split_document(
 		for part in _split_long_text(paragraph, chunk_size, overlap):
 			chunks.append(
 				DocumentChunk(
-					chunk_id=f"{document.document_id}-{chunk_number}",
+					chunk_id=f"{document.document_id}-para-{chunk_number}",
 					document_id=document.document_id,
 					source=document.source,
 					text=part,
 					metadata={
 						**document.metadata,
+						"strategy": "paragraph",
 						"document_id": document.document_id,
 						"chunk_number": chunk_number,
 					},
@@ -52,15 +55,61 @@ def split_document(
 	return chunks
 
 
+def split_document_fixed(
+	document: IngestedDocument,
+	chunk_size: int = 500,
+	overlap: int = 100,
+) -> list[DocumentChunk]:
+	"""Strategy 2 (Bonus): Fixed-size character window chunking across entire document."""
+	if chunk_size <= 0:
+		raise ValueError("chunk_size must be greater than zero")
+	if overlap < 0 or overlap >= chunk_size:
+		raise ValueError("overlap must be non-negative and smaller than chunk_size")
+
+	chunks: list[DocumentChunk] = []
+	parts = _split_long_text(document.content.strip(), chunk_size, overlap)
+
+	for chunk_number, part in enumerate(parts):
+		chunks.append(
+			DocumentChunk(
+				chunk_id=f"{document.document_id}-fixed-{chunk_number}",
+				document_id=document.document_id,
+				source=document.source,
+				text=part,
+				metadata={
+					**document.metadata,
+					"strategy": "fixed",
+					"document_id": document.document_id,
+					"chunk_number": chunk_number,
+				},
+			)
+		)
+
+	return chunks
+
+
+def split_document(
+	document: IngestedDocument,
+	chunk_size: int = 800,
+	overlap: int = 120,
+	strategy: ChunkingStrategy = "paragraph",
+) -> list[DocumentChunk]:
+	"""Split a document using the specified chunking strategy."""
+	if strategy == "fixed":
+		return split_document_fixed(document, chunk_size, overlap)
+	return split_document_paragraph(document, chunk_size, overlap)
+
+
 def chunk_documents(
 	documents: list[IngestedDocument],
 	chunk_size: int = 800,
 	overlap: int = 120,
+	strategy: ChunkingStrategy = "paragraph",
 ) -> list[DocumentChunk]:
-	"""Chunk every ingested document with one consistent strategy."""
+	"""Chunk every ingested document with the chosen strategy."""
 	chunks: list[DocumentChunk] = []
 	for document in documents:
-		chunks.extend(split_document(document, chunk_size, overlap))
+		chunks.extend(split_document(document, chunk_size, overlap, strategy=strategy))
 	return chunks
 
 

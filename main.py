@@ -1,8 +1,9 @@
 import argparse
 
 from chunking import chunk_documents
+from generator import FALLBACK_RESPONSE
 from ingestion import load_documents
-from pipeline import PipelineResult, answer_question
+from pipeline import answer_question_stream
 from retriever import Retriever
 from vector_store import ChromaVectorStore
 
@@ -21,21 +22,18 @@ def build_index(data_directory: str, db_path: str) -> Retriever:
 	print(
 		f"Indexed {len(collection.documents)} documents into {len(chunks)} chunks."
 	)
-	return Retriever(vector_store)
-
-
-def print_result(result: PipelineResult) -> None:
-	print(f"\nAssitant: {result.answer}")
-	if result.retrieved_chunks:
-		print("\nReferences:")
-		for number, chunk in enumerate(result.retrieved_chunks, start=1):
-			print(f"{number}. {chunk.source} (distance={chunk.distance:.3f})")
+	return Retriever(vector_store=vector_store, top_k=3)
 
 
 def main() -> None:
 	parser = argparse.ArgumentParser(description="Chat with local school documents")
 	parser.add_argument("--data", default="data", help="Directory containing documents")
 	parser.add_argument("--db", default="chroma_db", help="Persistent Chroma directory")
+	parser.add_argument(
+		"--show-chunks",
+		action="store_true",
+		help="Print full retrieved chunk contents before the answer (Bonus Challenge 3)",
+	)
 	args = parser.parse_args()
 
 	try:
@@ -43,6 +41,7 @@ def main() -> None:
 	except Exception as error:
 		raise SystemExit(f"Startup failed: {error}") from error
 
+	show_chunks = args.show_chunks
 	print("Ask a question about the documents. Type 'exit' to quit.")
 	while True:
 		question = input("\nYou: ").strip()
@@ -53,8 +52,35 @@ def main() -> None:
 			print("Please enter a question.")
 			continue
 
+		if question == "/chunks":
+			show_chunks = not show_chunks
+			print(f"Chunk preview before answer is now: {'[ENABLED]' if show_chunks else '[DISABLED]'}")
+			continue
+
 		try:
-			print_result(answer_question(question, retriever))
+			retrieved = retriever.retrieve(question)
+
+			# Bonus Challenge 3: Print retrieved chunks before printing answer
+			if show_chunks and retrieved:
+				print("\n[Retrieved Context Passages]:")
+				for i, c in enumerate(retrieved, 1):
+					print(f"--- Chunk {i} ({c.source}, dist={c.distance:.3f}) ---")
+					print(c.text.strip())
+				print("-" * 50)
+
+			stream, chunks = answer_question_stream(question, retriever)
+			print("\nAssistant: ", end="", flush=True)
+			full_answer: list[str] = []
+			for token in stream:
+				print(token, end="", flush=True)
+				full_answer.append(token)
+			print()
+
+			answer_text = "".join(full_answer).strip()
+			if chunks and FALLBACK_RESPONSE not in answer_text:
+				print("\nReferences:")
+				for number, chunk in enumerate(chunks, start=1):
+					print(f"{number}. {chunk.source} (distance={chunk.distance:.3f})")
 		except Exception as error:
 			print(f"Unable to answer the question: {error}")
 

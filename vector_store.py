@@ -1,3 +1,15 @@
+import os
+import shutil
+
+os.environ["ANONYMIZED_TELEMETRY"] = "False"
+
+try:
+    import posthog
+
+    posthog.capture = lambda *args, **kwargs: None
+except (ImportError, AttributeError):
+    pass
+
 import chromadb
 from chromadb.config import Settings
 
@@ -17,21 +29,46 @@ class ChromaVectorStore:
         collection_name: str = COLLECTION_NAME,
     ) -> None:
         self.db_path = db_path
-        self.client = chromadb.PersistentClient(
-            path=db_path,
-            settings=Settings(anonymized_telemetry=False),
-        )
-        self.collection = self.client.get_or_create_collection(
-            name=collection_name,
-            metadata={"hnsw:space": "cosine"},
-        )
+        self.collection_name = collection_name
+        self._init_collection()
+
+    def _init_collection(self) -> None:
+        try:
+            self.client = chromadb.PersistentClient(
+                path=self.db_path,
+                settings=Settings(anonymized_telemetry=False),
+            )
+            self.collection = self.client.get_or_create_collection(
+                name=self.collection_name,
+                metadata={"hnsw:space": "cosine"},
+            )
+        except Exception:
+            # Clear system cache and recreate cleanly if schema migration or corruption occurs
+            try:
+                from chromadb.api.client import SharedSystemClient
+
+                SharedSystemClient.clear_system_cache()
+            except Exception:
+                pass
+            if os.path.exists(self.db_path):
+                shutil.rmtree(self.db_path, ignore_errors=True)
+            self.client = chromadb.PersistentClient(
+                path=self.db_path,
+                settings=Settings(anonymized_telemetry=False),
+            )
+            self.collection = self.client.get_or_create_collection(
+                name=self.collection_name,
+                metadata={"hnsw:space": "cosine"},
+            )
 
     def reset(self) -> None:
         """Remove indexed chunks so a fresh ingestion cannot leave stale data."""
-        collection_name = self.collection.name
-        self.client.delete_collection(collection_name)
+        try:
+            self.client.delete_collection(self.collection_name)
+        except Exception:
+            pass
         self.collection = self.client.get_or_create_collection(
-            name=collection_name,
+            name=self.collection_name,
             metadata={"hnsw:space": "cosine"},
         )
 
