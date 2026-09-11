@@ -30,9 +30,9 @@ def main() -> None:
 	parser.add_argument("--data", default="data", help="Directory containing documents")
 	parser.add_argument("--db", default="chroma_db", help="Persistent Chroma directory")
 	parser.add_argument(
-		"--show-chunks",
+		"--hide-chunks",
 		action="store_true",
-		help="Print full retrieved chunk contents before the answer (Bonus Challenge 3)",
+		help="Hide retrieved chunk contents before the answer",
 	)
 	args = parser.parse_args()
 
@@ -41,7 +41,7 @@ def main() -> None:
 	except Exception as error:
 		raise SystemExit(f"Startup failed: {error}") from error
 
-	show_chunks = args.show_chunks
+	show_chunks = not args.hide_chunks
 	print("Ask a question about the documents. Type 'exit' to quit.")
 	while True:
 		question = input("\nYou: ").strip()
@@ -60,15 +60,15 @@ def main() -> None:
 		try:
 			retrieved = retriever.retrieve(question)
 
-			# Bonus Challenge 3: Print retrieved chunks before printing answer
+			# Print retrieved chunks to the screen before printing the answer
 			if show_chunks and retrieved:
-				print("\n[Retrieved Context Passages]:")
-				for i, c in enumerate(retrieved, 1):
-					print(f"--- Chunk {i} ({c.source}, dist={c.distance:.3f}) ---")
-					print(c.text.strip())
-				print("-" * 50)
+				print("\n--- Retrieved Chunks ---")
+				for i, chunk in enumerate(retrieved, start=1):
+					print(f"[{i}] Source: {chunk.source} (distance={chunk.distance:.3f})")
+					print(f"{chunk.text.strip()}\n")
+				print("-" * 40)
 
-			stream, chunks = answer_question_stream(question, retriever)
+			stream, chunks = answer_question_stream(question, chunks=retrieved)
 			print("\nAssistant: ", end="", flush=True)
 			full_answer: list[str] = []
 			for token in stream:
@@ -87,3 +87,4 @@ def main() -> None:
 
 if __name__ == "__main__":
 	main()
+

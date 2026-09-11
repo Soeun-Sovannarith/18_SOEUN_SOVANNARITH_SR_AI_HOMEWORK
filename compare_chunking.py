@@ -1,4 +1,4 @@
-"""Bonus Challenge 1: Compare two text splitting strategies on the same documents.
+"""Compare two text splitting strategies on the same documents.
 
 Strategy 1: Paragraph-aware chunking (preserves paragraph boundaries, splits oversized paragraphs)
 Strategy 2: Fixed-size window chunking (fixed 500-char window with 100-char overlap)
@@ -9,10 +9,6 @@ from ingestion import load_documents
 
 
 def main() -> None:
-	print("=" * 70)
-	print("BONUS CHALLENGE 1: COMPARING TWO TEXT SPLITTING STRATEGIES")
-	print("=" * 70)
-
 	collection = load_documents("data")
 	print(f"Loaded {len(collection.documents)} documents from data/ directory.\n")
 
@@ -47,7 +43,7 @@ def main() -> None:
 		[c for c in para_chunks if c.source.endswith("school_regulations.md")][:2], 1
 	):
 		print(f"[Chunk {i}] ({len(c.text)} chars):")
-		print(c.text[:200] + "..." if len(c.text) > 200 else c.text)
+		print(c.text)
 		print()
 
 	print("--- Strategy 2 Sample (Fixed-Window): ---")
@@ -55,14 +51,8 @@ def main() -> None:
 		[c for c in fixed_chunks if c.source.endswith("school_regulations.md")][:2], 1
 	):
 		print(f"[Chunk {i}] ({len(c.text)} chars):")
-		print(c.text[:200] + "..." if len(c.text) > 200 else c.text)
+		print(c.text)
 		print()
-
-	print("=" * 70)
-	print("Key Observations & Trade-Offs:")
-	print("1. Paragraph-aware splitting preserves complete logical rules without cutting sentences.")
-	print("2. Fixed-window splitting creates uniform-sized chunks but may divide a sentence or rule mid-thought.")
-	print("=" * 70)
 
 
 if __name__ == "__main__":

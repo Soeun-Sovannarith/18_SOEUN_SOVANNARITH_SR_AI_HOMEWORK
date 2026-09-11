@@ -167,6 +167,8 @@ The `data/` folder contains documents for **Greenfield International School**:
 
 ## Submission Artifacts
 
-- [test_log.md](test_log.md): Required local test questions, retrieved source chunks, and generated outputs.
-- [reflection.md](reflection.md): 150–300 word reflection on implementation, challenges, and Advanced RAG enhancements.
-- [compare_chunking.py](compare_chunking.py): Executable script comparing two text splitting strategies.
+- [Documentation/Test_Log.md](Documentation/Test_Log.md): Required local test questions, retrieved source chunks, and generated outputs.
+- [Documentation/reflection.md](Documentation/reflection.md): 150–200 word reflection on implementation, challenges, and Advanced RAG enhancements.
+- [Documentation/splitting_strategy_comparison.md](Documentation/splitting_strategy_comparison.md): Detailed comparison and analysis of text splitting strategies.
+- [compare_chunking.py](compare_chunking.py): Executable script comparing the two text splitting strategies.
+

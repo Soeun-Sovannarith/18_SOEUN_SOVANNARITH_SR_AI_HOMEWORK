@@ -11,19 +11,23 @@ class PipelineResult:
 	answer: str
 	retrieved_chunks: list[RetrievedChunk]
 
-
+# Streaming
 def answer_question_stream(
 	question: str,
-	retriever: Retriever,
+	retriever: Retriever | None = None,
+	chunks: list[RetrievedChunk] | None = None,
 	distance_threshold: float = 0.50,
 ) -> tuple[Iterator[str], list[RetrievedChunk]]:
-	"""Run retrieval first, then yield answer tokens as they are generated."""
+	"""Run retrieval first if not provided, then yield answer tokens as they are generated."""
 	if not question.strip():
 		raise ValueError("question must not be blank")
 
-	chunks = retriever.retrieve(question)
+	if chunks is None:
+		if retriever is None:
+			raise ValueError("Either retriever or chunks must be provided")
+		chunks = retriever.retrieve(question)
 
-	# Bonus Challenge 4: Simple check if no chunk is a strong match
+	# Simple check if no chunk is a strong match
 	if chunks and all(c.distance > distance_threshold for c in chunks):
 		def _fallback_stream() -> Iterator[str]:
 			yield "I could not find this in the provided documents."
@@ -34,11 +38,20 @@ def answer_question_stream(
 	return stream, chunks
 
 
-def answer_question(question: str, retriever: Retriever) -> PipelineResult:
+def answer_question(
+	question: str,
+	retriever: Retriever | None = None,
+	chunks: list[RetrievedChunk] | None = None,
+) -> PipelineResult:
 	"""Run retrieval first, then generate an answer from the retrieved context."""
 	if not question.strip():
 		raise ValueError("question must not be blank")
 
-	chunks = retriever.retrieve(question)
+	if chunks is None:
+		if retriever is None:
+			raise ValueError("Either retriever or chunks must be provided")
+		chunks = retriever.retrieve(question)
+
 	answer = generate_answer(question, chunks)
 	return PipelineResult(question, answer, chunks)
+
